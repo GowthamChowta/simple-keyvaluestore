@@ -1,5 +1,7 @@
 import json
-
+import os
+if "simple-keyvaluestore"  not in os.getcwd():
+    os.chdir("simple-keyvaluestore/")
 
 class SaveLoadDisk:
     
