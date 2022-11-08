@@ -56,3 +56,6 @@ class Client:
         
 
         
+c = Client("35.192.170.34","tcp",8080)
+c.set("10","20")
+print(c.get("10"))
