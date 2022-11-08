@@ -1,6 +1,5 @@
 import socket
 from time import sleep
-from pymemcache.client.base import Client as MemCachedClient
 
 
 class Client: 
@@ -9,14 +8,12 @@ class Client:
         self.host = host
         self.port = port
         self.type = type
-        self.createClientFunc = self.createTCPClient  if type == 'tcp' else self.createMemCachedClient        
+        self.createClientFunc = self.createTCPClient
     
     def createTCPClient(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM )
         self.client.connect((self.host,self.port))  
-    
-    def createMemCachedClient(self):
-        self.client = MemCachedClient((self.host, self.port),default_noreply=False, encoding='utf-8')                                
+                                  
                 
     def utf8len(self,s):        
         return str(len(s.encode('utf-8')))
