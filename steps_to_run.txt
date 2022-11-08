@@ -1,0 +1,33 @@
+Files:
+client.py -- Implemented tcp/memcached type client.
+start_server.sh -- Launches the server
+1-client-tcp.sh -- Connects to the server and makes GET-SET requests with tcp protocol.
+1-client-memcached.sh -- Connects to the server and makes GET-SET requests with memcached protocol.
+n-clients.sh -- Connects to the server and makes many GET-SET request in parallel to the server. 
+
+(All files expect an argument port number)
+
+
+Server: 
+To start a multi-threader server execute the below line:
+./start_server.sh <listen-port>
+
+To start a server on port 8082
+
+./start_server.sh 8082
+
+
+Client:
+To send a get request
+1. 
+
+2 (a) Execute the below line to send a single GET and SET request to the server: (Make sure we use the same port number where the server is launched)
+
+./tests/1-client-tcp.sh 8082
+
+2 (b) Execute the below line to send multiple GET and SET request to the server. 
+
+./tests/n-clients.sh 8082
+
+
+
