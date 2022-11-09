@@ -56,7 +56,7 @@ class Client:
             print("[Server]:",out);        
         
 port = int(sys.argv[1])
-serverInternalIp = int(sys.argv[2])
+serverInternalIp = sys.argv[2]
 
 c = Client(serverInternalIp,"tcp",port)
 c.set("10","20")

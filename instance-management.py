@@ -16,6 +16,8 @@ PROJECTID="gowtham-chowta-proj-e516"
 USER =  "chgowt_iu_edu"
 SSHFilePath = "/Users/chowtagowtham/.ssh/gcp-ass4"
 SERVERPORT = 8094        
+# os.system("eval ssh-agent $SHELL")
+# os.system(f"ssh-add {SSHFilePath}")
 
 
 def disk_from_image(
@@ -204,7 +206,7 @@ disk_type=f'zones/{ZONE}/diskTypes/pd-balanced'
 
 
 boot_disk = disk_from_image(disk_type,10,True,source_image=source_image)
-machine_names = ["keyvalue5-server","keyvalue5-client"]
+machine_names = ["keyvalue4-server","keyvalue4-client"]
 commandsToSetup = [
     "sudo apt install -y git",
     "git clone https://github.com/GowthamChowta/simple-keyvaluestore.git"
@@ -216,34 +218,34 @@ commandsToServer = [
     f"python3 -u simple-keyvaluestore/server.py {SERVERPORT}"
 ]
 # for name in machine_names:    
-create_instance(project_id=PROJECTID,zone=ZONE,instance_name=machine_names[0],disks=[boot_disk],machine_type="e2-micro",external_access=True)
+# create_instance(project_id=PROJECTID,zone=ZONE,instance_name=machine_names[0],disks=[boot_disk],machine_type="e2-micro",external_access=True)
 serverPublicIP,serverInternalIP = getInstanceExternalInternalIpByName(machine_names[0])
 print(f"Server Public IP address is {serverPublicIP}")
-print(f"Removing known hosts if exists for {serverPublicIP}")
-os.system(f"ssh-keygen -R {serverPublicIP}")
-print("Installing dependencies on Server")
-ssh = setupMachineByhostIP(serverPublicIP)
-runCommandsOnAMachineOverSSH(ssh,commandsToSetup)
+# print(f"Removing known hosts if exists for {serverPublicIP}")
+# os.system(f"ssh-keygen -R {serverPublicIP}")
+# print("Installing dependencies on Server")
+# ssh = setupMachineByhostIP(serverPublicIP)
+# runCommandsOnAMachineOverSSH(ssh,commandsToSetup)
 
 
-# runCommandsOnAMachineOverSSH(ssh,commandsToServer)
-t = threading.Thread(target=runCommandsOnAMachineOverSSH,args=(ssh,commandsToServer))
-t.start()
+# # runCommandsOnAMachineOverSSH(ssh,commandsToServer)
+# t = threading.Thread(target=runCommandsOnAMachineOverSSH,args=(ssh,commandsToServer))
+# t.start()
 
 
-print("Starting Client machine")
-create_instance(project_id=PROJECTID,zone=ZONE,instance_name=machine_names[1],disks=[boot_disk],machine_type="e2-micro",external_access=True)
+# print("Starting Client machine")
+# create_instance(project_id=PROJECTID,zone=ZONE,instance_name=machine_names[1],disks=[boot_disk],machine_type="e2-micro",external_access=True)
 clientPublicIP, clientInternalIP = getInstanceExternalInternalIpByName(machine_names[1])
 print(f"Client Public IP address is {clientPublicIP}")
+print(f"Removing known hosts if exists for {clientPublicIP}")
+os.system(f"ssh-keygen -R {clientPublicIP}")
 print("Installing dependencies on Client")
-ssh = setupMachineByhostIP(clientPublicIP)
-runCommandsOnAMachineOverSSH(ssh,commandsToSetup)
+sshClient = setupMachineByhostIP(clientPublicIP)
+# runCommandsOnAMachineOverSSH(sshClient,commandsToSetup)
 
 commandsToClient = [
     f"python3 -u simple-keyvaluestore/client.py {SERVERPORT} {serverInternalIP}"
 ]
 
-t = threading.Thread(target=runCommandsOnAMachineOverSSH,args=(ssh,commandsToServer))
-t.start()
-
+runCommandsOnAMachineOverSSH(sshClient,commandsToClient)
 print("Installing dependencies")
