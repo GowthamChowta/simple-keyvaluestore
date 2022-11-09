@@ -5,13 +5,17 @@ import sys
 from typing import Any, List
 import warnings
 import os
-
+import paramiko
+import threading
 from google.api_core.extended_operation import ExtendedOperation
 from google.cloud import compute_v1
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/chowtagowtham/.config/gcloud/application_default_credentials.json"
 ZONE="us-central1-a"
 PROJECTID="gowtham-chowta-proj-e516"
+USER =  "chgowt_iu_edu"
+SSHFilePath = "/Users/chowtagowtham/.ssh/gcp-ass4"
+SERVERPORT = 8094        
 
 
 def disk_from_image(
@@ -168,11 +172,28 @@ def create_instance(
     return instance_client.get(project=project_id, zone=zone, instance=instance_name)
 
 
-def getInstanceInternalIpByName(name):
+def getInstanceExternalInternalIpByName(name):
     client = compute_v1.InstancesClient()    
     instanceConfig = client.get(project=PROJECTID,zone=ZONE,instance=name)
-    return instanceConfig.network_interfaces[0].network_i_p
+    return [instanceConfig.network_interfaces[0].access_configs[0].nat_i_p, instanceConfig.network_interfaces[0].network_i_p]
 
+def setupMachineByhostIP(hostIP: str):
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(hostname= hostIP,username=USER,key_filename=SSHFilePath)
+    return ssh
+    
+def runCommandsOnAMachineOverSSH(ssh,commands):
+    for command in commands:
+        stdin, stdout, stderr = ssh.exec_command(command)
+        while True:
+            line = stdout.readline()
+            if not line:
+                break
+            print(line, end="")
+        print(stderr)
+    
+    
 
 
 image_name="debian-11-bullseye-v20221102"
@@ -183,11 +204,46 @@ disk_type=f'zones/{ZONE}/diskTypes/pd-balanced'
 
 
 boot_disk = disk_from_image(disk_type,10,True,source_image=source_image)
-machine_names = ["keyvalue1-server","keyvalue1-client"]
+machine_names = ["keyvalue5-server","keyvalue5-client"]
+commandsToSetup = [
+    "sudo apt install -y git",
+    "git clone https://github.com/GowthamChowta/simple-keyvaluestore.git"
+]
 
-for name in machine_names:    
-    create_instance(project_id=PROJECTID,zone=ZONE,instance_name=name,disks=[boot_disk],machine_type="e2-micro",external_access=True)
-    
-for name in machine_names:
-    print(getInstanceInternalIpByName(name))
-    
+
+print("Starting server machine")
+commandsToServer = [
+    f"python3 -u simple-keyvaluestore/server.py {SERVERPORT}"
+]
+# for name in machine_names:    
+create_instance(project_id=PROJECTID,zone=ZONE,instance_name=machine_names[0],disks=[boot_disk],machine_type="e2-micro",external_access=True)
+serverPublicIP,serverInternalIP = getInstanceExternalInternalIpByName(machine_names[0])
+print(f"Server Public IP address is {serverPublicIP}")
+print(f"Removing known hosts if exists for {serverPublicIP}")
+os.system(f"ssh-keygen -R {serverPublicIP}")
+print("Installing dependencies on Server")
+ssh = setupMachineByhostIP(serverPublicIP)
+runCommandsOnAMachineOverSSH(ssh,commandsToSetup)
+
+
+# runCommandsOnAMachineOverSSH(ssh,commandsToServer)
+t = threading.Thread(target=runCommandsOnAMachineOverSSH,args=(ssh,commandsToServer))
+t.start()
+
+
+print("Starting Client machine")
+create_instance(project_id=PROJECTID,zone=ZONE,instance_name=machine_names[1],disks=[boot_disk],machine_type="e2-micro",external_access=True)
+clientPublicIP, clientInternalIP = getInstanceExternalInternalIpByName(machine_names[1])
+print(f"Client Public IP address is {clientPublicIP}")
+print("Installing dependencies on Client")
+ssh = setupMachineByhostIP(clientPublicIP)
+runCommandsOnAMachineOverSSH(ssh,commandsToSetup)
+
+commandsToClient = [
+    f"python3 -u simple-keyvaluestore/client.py {SERVERPORT} {serverInternalIP}"
+]
+
+t = threading.Thread(target=runCommandsOnAMachineOverSSH,args=(ssh,commandsToServer))
+t.start()
+
+print("Installing dependencies")

@@ -1,5 +1,6 @@
 import socket
 from time import sleep
+import sys
 
 
 class Client: 
@@ -54,8 +55,9 @@ class Client:
             out = self.client.get(key)
             print("[Server]:",out);        
         
+port = int(sys.argv[1])
+serverInternalIp = int(sys.argv[2])
 
-        
-c = Client("35.192.170.34","tcp",8080)
+c = Client(serverInternalIp,"tcp",port)
 c.set("10","20")
 print(c.get("10"))
