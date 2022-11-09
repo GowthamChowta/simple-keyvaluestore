@@ -57,7 +57,6 @@ class Client:
         
 port = int(sys.argv[1])
 serverInternalIp = sys.argv[2]
-serverInternalIp = socket.gethostbyname(socket.gethostname())
 
 c = Client(serverInternalIp,"tcp",port)
 c.set("20","120")

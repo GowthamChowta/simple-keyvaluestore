@@ -12,10 +12,10 @@ from google.api_core.extended_operation import ExtendedOperation
 from google.cloud import compute_v1
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/chowtagowtham/.config/gcloud/application_default_credentials.json"
-ZONE="us-central1-a"
+ZONE="us-east1"
 PROJECTID="test-chgowt-1"
 USER =  "chgowt_iu_edu"
-SSHFilePath = "/Users/chowtagowtham/.ssh/gcp-ass4"
+SSHFilePath = "/Users/chowtagowtham/.ssh/gcp-ass5"
 SERVERPORT = 8094        
 # os.system("eval ssh-agent $SHELL")
 # os.system(f"ssh-add {SSHFilePath}")
@@ -188,13 +188,18 @@ def setupMachineByhostIP(hostIP: str):
     
 def runCommandsOnAMachineOverSSH(ssh,commands):
     for command in commands:
-        stdin, stdout, stderr = ssh.exec_command(command)
-        while True:
-            line = stdout.readline()
-            if not line:
-                break
-            print(line, end="")
-        print(stderr)
+        print(f"Excecuting command {command}")
+        stderr = ''
+        try:
+            stdin, stdout, stderr = ssh.exec_command(command)
+            while True:
+                line = stdout.readline()
+                if not line:
+                    break
+                print(line, end="")
+            print("Command executed successfully is",command)
+        except Exception as e:
+            print("An error occurred while running the command",command, stderr)        
     
     
 
@@ -207,19 +212,26 @@ disk_type=f'zones/{ZONE}/diskTypes/pd-balanced'
 
 
 boot_disk = disk_from_image(disk_type,10,True,source_image=source_image)
-machine_names = ["keyvalue9-server","keyvalue9-client"]
-commandsToSetup = [
+machine_names = ["keyvalue3-server","keyvalue3-client"]
+commandsToSetupOnServer = [
     "sudo apt install -y git",
-    "git clone https://github.com/GowthamChowta/simple-keyvaluestore.git"
+    "git clone https://github.com/GowthamChowta/simple-keyvaluestore.git",
+    "sudo apt install -y python3-pip",    
+    "sudo pip install google-cloud-core"
+    "sudo pip install google-cloud-firestore"
+    "sudo pip install google-cloud-compute"    
 ]
-
+commandsToSetupOnClient = [
+    "sudo apt install -y git",
+    "git clone https://github.com/GowthamChowta/simple-keyvaluestore.git"    
+]
 
 print("Starting server machine")
 commandsToServer = [
-    f"python3 -u simple-keyvaluestore/server.py {SERVERPORT}"
+    f"python3 -u simple-keyvaluestore/server.py {SERVERPORT} firestore"
 ]
 # for name in machine_names:    
-create_instance(project_id=PROJECTID,zone=ZONE,instance_name=machine_names[0],disks=[boot_disk],machine_type="e2-micro",external_access=True)
+create_instance(project_id=PROJECTID,zone=ZONE,instance_name=machine_names[0],disks=[boot_disk],machine_type="e2-medium",external_access=True)
 serverPublicIP,serverInternalIP = getInstanceExternalInternalIpByName(machine_names[0])
 print(f"Server Public IP address is {serverPublicIP}")
 print(f"Removing known hosts if exists for {serverPublicIP}")
@@ -227,7 +239,7 @@ os.system(f"ssh-keygen -R {serverPublicIP}")
 print("Installing dependencies on Server")
 sleep(10)
 ssh = setupMachineByhostIP(serverPublicIP)
-runCommandsOnAMachineOverSSH(ssh,commandsToSetup)
+runCommandsOnAMachineOverSSH(ssh,commandsToSetupOnServer)
 
 
 # runCommandsOnAMachineOverSSH(ssh,commandsToServer)
@@ -243,8 +255,12 @@ print(f"Removing known hosts if exists for {clientPublicIP}")
 os.system(f"ssh-keygen -R {clientPublicIP}")
 print("Installing dependencies on Client")
 sleep(10)
+commandsToSetupOnClient = [
+    "sudo apt install -y git",
+    "git clone https://github.com/GowthamChowta/simple-keyvaluestore.git"    
+]
 sshClient = setupMachineByhostIP(clientPublicIP)
-runCommandsOnAMachineOverSSH(sshClient,commandsToSetup)
+runCommandsOnAMachineOverSSH(sshClient,commandsToSetupOnClient)
 
 commandsToClient = [
     f"python3 -u simple-keyvaluestore/client.py {SERVERPORT} {serverInternalIP}"
