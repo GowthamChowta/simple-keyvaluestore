@@ -6,11 +6,11 @@ from threading import Thread
 from time import sleep
 
 from constants import INVALIDCOMMAND, NEWLINESEPERATOR, NOTEXISTS, STORED
-from saveLoadDisk import SaveLoadDisk
+from saveLoadDisk import GoogleFireStore, SaveLoadDisk
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = int(sys.argv[1])
-
+STORAGE = sys.argv[2]
 
 
 class ServerThread:
@@ -32,8 +32,7 @@ class ServerThread:
             return False
         return True
     
-    def doWork(self, clientSock,saveLoadDisk):
-        self.keyValueStore = saveLoadDisk.keyValueStore
+    def doWork(self, clientSock,storage):
         self.randomDelay()
         self.clientSock = clientSock   
         messageFromClient = self.clientSock.recv(2048)    
@@ -45,15 +44,15 @@ class ServerThread:
         
         if (self.data[0] == 'get'):
             _,key = self.data
-            self.sendMessageToClient(self.parseGetResponse(key))
+            
+            self.sendMessageToClient(storage.get(key))
             
         elif (self.data[0] == 'set'):            
             key = self.data[1]
             value = self.data[5:]            
-            value = " ".join(value)                                              
-            self.keyValueStore[key] = value
-            saveLoadDisk.writeToJson({key,value})
-            self.sendMessageToClient(STORED)                    
+            value = " ".join(value)                                                          
+            storage.save([key,value])
+            self.sendMessageToClient(STORED)    
 
     
     def sendMessageToClient(self,message):
@@ -62,19 +61,6 @@ class ServerThread:
         self.clientSock.send(message)
         print("[Server]:",message)
         
-    def utf8len(self,s):        
-        return str(len(s.encode('utf-8')))    
-    
-    def parseGetResponse(self,key):
-        command = ''        
-        if key in self.keyValueStore:
-            value = self.keyValueStore[key]
-            command = "VALUE" + " " + key +" 0 "+self.utf8len(value) + NEWLINESEPERATOR + value + NEWLINESEPERATOR + "END\r\n"
-            # command = value
-        else:
-            command = "VALUE" + " " + key +" 0 "+self.utf8len(NOTEXISTS.decode()) + NEWLINESEPERATOR + NOTEXISTS.decode() + NEWLINESEPERATOR + "END\r\n"
-            # command = NOTEXISTS
-        return command
     
     def randomDelay(self):        
         # sleep(random.randint(1,2))
@@ -84,12 +70,15 @@ class Server:
     """Starts a new TCP server
     * For every new incoming connection, it will create new thread for execution. 
     """
-    def __init__(self, host, port=8080):
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
+    def __init__(self, host, port=8080, storage="default"):
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind((host,port))
-        self.server.listen(5);
-        self.index = 0        
-        self.saveLoadDisk = SaveLoadDisk()        
+        self.server.listen(5)
+        self.index = 0       
+        if storage == "default": 
+            self.storage = SaveLoadDisk()        
+        elif storage == "firestore":
+            self.storage = GoogleFireStore()
         print(f"Server is listening on port {PORT}")        
         
     def startServer(self):
@@ -97,7 +86,7 @@ class Server:
         while True:
             client_sock, client_addr = self.server.accept()
             print("Accepting connection from ",client_addr)                        
-            thread = Thread(target = ServerThread().doWork, args=(client_sock,self.saveLoadDisk ), name = f"t{self.index}" )
+            thread = Thread(target = ServerThread().doWork, args=(client_sock,self.storage ), name = f"t{self.index}" )
             print("Spawned new thread")
             self.index +=1
             thread.start()
@@ -105,7 +94,7 @@ class Server:
         
     
             
-s = Server(HOST,PORT)
+s = Server(HOST,PORT, STORAGE)
 s.startServer()
 
     
