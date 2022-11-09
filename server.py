@@ -4,14 +4,20 @@ import sys
 import re
 from threading import Thread
 from time import sleep
+import os
 
 from constants import INVALIDCOMMAND, NEWLINESEPERATOR, NOTEXISTS, STORED
+from gcpPythonClientHelper import read_ini
 from saveLoadDisk import GoogleFireStore, SaveLoadDisk
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = int(sys.argv[1])
 STORAGE = sys.argv[2]
 
+params = read_ini()
+USER =params["USER"]["USERNAME"]
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = '/home/{USER}/cred.json'
 
 class ServerThread:
     """

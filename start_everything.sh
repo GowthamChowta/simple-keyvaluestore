@@ -1,8 +1,12 @@
 #!/bin/bash 
 gcloud config set project test-chgowt-1
+echo 'Enabling api property'
 gcloud services enable compute.googleapis.com
+echo 'Enabling os login property'
 gcloud services enable oslogin.googleapis.com
+echo 'Enabling datastore property'
 gcloud services enable datastore.googleapis.com
+echo 'Enabling firestore property'
 gcloud services enable firestore.googleapis.com
 
 # Creating a ssh key and transfering the key to a project
@@ -11,6 +15,7 @@ gcloud compute os-login ssh-keys add --key-file=/Users/chowtagowtham/.ssh/gcp-as
 # Setting up SSH agent
 eval "$(ssh-agent -s)"
 ssh-add /Users/chowtagowtham/.ssh/gcp-ass5
+
 
 ## Creating a default network
 gcloud compute networks create default
