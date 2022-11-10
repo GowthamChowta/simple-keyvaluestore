@@ -1,6 +1,7 @@
 import socket
 from time import sleep
 import sys
+import time
 
 
 class Client: 
@@ -58,13 +59,29 @@ class Client:
 port = int(sys.argv[1])
 serverInternalIp = sys.argv[2]
 
-import time
-start_time = time.time()
 c = Client(serverInternalIp,"tcp",port)
+start_time = time.time()
 c.set("Gowtham","chowta")
+print("--- %s seconds ---" % (time.time() - start_time))
+
+start_time = time.time()
 print(c.get("Gowtham"))
+print("--- %s seconds ---" % (time.time() - start_time))
+
+start_time = time.time()
 c.set("516","ECC")
+print("--- %s seconds ---" % (time.time() - start_time))
+
+start_time = time.time()
 print(c.get("517"))
+print("--- %s seconds ---" % (time.time() - start_time))
+
+
+start_time = time.time()
 c.set("517","NA")
+print("--- %s seconds ---" % (time.time() - start_time))
+
+
+start_time = time.time()
 print(c.get("517"))
 print("--- %s seconds ---" % (time.time() - start_time))
