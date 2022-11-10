@@ -34,7 +34,8 @@ commandsToSetupOnServer = [
     "sudo apt install -y python3-pip",    
     "sudo pip install google-cloud-core",
     "sudo pip install google-cloud-firestore",
-    "sudo pip install google-cloud-compute" 
+    "sudo pip install google-cloud-compute" ,
+    "sudo pip install paramiko"
 ]
 commandsToSetupOnClient = [
     "sudo apt install -y git",
