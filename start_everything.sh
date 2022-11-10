@@ -1,5 +1,13 @@
 #!/bin/bash 
-gcloud config set project test-chgowt-1
+PROJECTID=$(awk -F "=" '/PROJECTID/ {print $2}' config.ini)
+USERNAME=$(awk -F "=" '/USERNAME/ {print $2}' config.ini)
+STORAGE=$(awk -F "=" '/STORAGE/ {print $2}' config.ini)
+
+echo $PROJECTID
+echo $USERNAME
+echo $STORAGE
+
+gcloud config set project $PROJECTID
 echo 'Enabling api property'
 gcloud services enable compute.googleapis.com
 echo 'Enabling os login property'
@@ -10,11 +18,11 @@ echo 'Enabling firestore property'
 gcloud services enable firestore.googleapis.com
 
 # Creating a ssh key and transfering the key to a project
-ssh-keygen -t rsa -f ~/.ssh/gcp-ass5 -C chgowt_iu_edu -b 2048
-gcloud compute os-login ssh-keys add --key-file=/Users/chowtagowtham/.ssh/gcp-ass5.pub --project=test-chgowt-1 --ttl=30d
+ssh-keygen -t rsa -f ~/.ssh/gcp-ass5 -C $USERNAME -b 2048
+gcloud compute os-login ssh-keys add --key-file=/Users/chowtagowtham/.ssh/gcp-ass5.pub --project $PROJECTID --ttl=30d
 # Setting up SSH agent
 eval "$(ssh-agent -s)"
-ssh-add /Users/chowtagowtham/.ssh/gcp-ass5
+ssh-add ~/.ssh/gcp-ass5
 
 
 ## Creating a default network
@@ -26,5 +34,5 @@ gcloud compute firewall-rules create default-allow-internal --network default --
 
 # Starting key-value server, test client 
 
-python3 instance-management.py
+python3 instance-management.py $STORAGE
 

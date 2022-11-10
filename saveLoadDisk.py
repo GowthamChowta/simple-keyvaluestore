@@ -17,6 +17,7 @@ if "simple-keyvaluestore"  not in os.getcwd():
 params = read_ini()
 
 bucketName = params["GCP"]["bucketName"]
+projectId = params["USER"]["PROJECTID"]
 
 
 class CustomStorage(ABC):
@@ -77,7 +78,7 @@ class GoogleFireStore(CustomStorage):
         self.load()
     
     def load(self):
-        self.db = firestore.Client(project='test-chgowt-1').collection(u'items')
+        self.db = firestore.Client(project=projectId).collection(u'items')
         return self.db
     
     def save(self,data):
@@ -103,7 +104,7 @@ class GoogleBlobStorage(CustomStorage):
     
     def __init__(self):
         # Instantiates a client
-        self.storage_client = storage.Client()
+        self.storage_client = storage.Client(project=projectId)
         self.bucket = self.storage_client.bucket(bucketName)
         
     
