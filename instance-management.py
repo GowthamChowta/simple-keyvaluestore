@@ -27,7 +27,7 @@ disk_type=f'zones/{ZONE}/diskTypes/pd-balanced'
 boot_disk_server = disk_from_image(disk_type,10,True,source_image=source_image)
 boot_disk_client = disk_from_image(disk_type,10,True,source_image=source_image)
 
-machine_names = ["keyvalue2-server","keyvalue2-client"]
+machine_names = ["keyvalue4-server","keyvalue4-client"]
 commandsToSetupOnServer = [
     "sudo apt install -y git",
     "git clone https://github.com/GowthamChowta/simple-keyvaluestore.git",

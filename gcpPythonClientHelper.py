@@ -8,7 +8,8 @@ from google.cloud import compute_v1
 import configparser
 import os
 
-
+if "simple-keyvaluestore"  not in os.getcwd():
+    os.chdir("simple-keyvaluestore/")
 
 def read_ini(file_path="./config.ini"):
     config = configparser.ConfigParser()
