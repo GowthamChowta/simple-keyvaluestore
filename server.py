@@ -16,8 +16,7 @@ STORAGE = sys.argv[2]
 
 params = read_ini()
 USER =params["USER"]["USERNAME"]
-
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = '/home/{USER}/cred.json'
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = f"/home/{USER}/cred.json"
 
 class ServerThread:
     """
