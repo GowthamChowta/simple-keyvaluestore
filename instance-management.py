@@ -1,5 +1,3 @@
-# TODO Need to put reference
-# TODO Need to put reference
 from time import sleep
 import os
 import threading
@@ -89,7 +87,6 @@ def installDependenciesOnServer(serverPublicIP):
     print("Installing dependencies on Server")
     ssh = setupMachineByhostIP(serverPublicIP)
     ## Copying the cred.json file to the server
-    # commandsToSetupOnServer.append(f"export GOOGLE_APPLICATION_CREDENTIALS='/home/{USER}/cred.json' ")
     runCommandsOnAMachineOverSSH(ssh,commandsToSetupOnServer)
     ## Start server process
     t = threading.Thread(target=runCommandsOnAMachineOverSSH,args=(ssh,commandsToServer))
@@ -113,8 +110,8 @@ installDependenciesOnServer(serverPublicIP)
 installDependenciesOnClient(clientPublicIP, serverInternalIP)
 print("Completed key-value store")
 
-# delete_instance(project_id=PROJECTID, zone=ZONE,machine_name=machine_names[0])
-# delete_instance(project_id=PROJECTID, zone=ZONE,machine_name=machine_names[1])
+delete_instance(project_id=PROJECTID, zone=ZONE,machine_name=machine_names[0])
+delete_instance(project_id=PROJECTID, zone=ZONE,machine_name=machine_names[1])
 # delete_bucket(storage, bucket_name=bucketName)
 
 

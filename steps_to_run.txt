@@ -1,8 +1,7 @@
 Pre-requisites:
 
 * gcloud is installed. 
-* python3 installed.
-* 
+
 
 1. Need to setup the application credentials. Run the below command and login via google and download the credentials.
 
@@ -19,3 +18,6 @@ config.ini
 
 3. Run the key-value server with the storage option selected. 
 ./start_everything.sh
+
+Note: 
+If there is any issue while generating the workflow, delete the instances if created and please re-run it again.

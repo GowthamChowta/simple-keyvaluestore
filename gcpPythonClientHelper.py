@@ -30,7 +30,7 @@ BUCKETNAMEFORBLOGBSTORAGE =params["GCP"]["BUCKETNAMEFORBLOGBSTORAGE"]
 
 
 
-
+# Ref: https://cloud.google.com/python/docs/reference/compute/latest
 def disk_from_image(
     disk_type: str,
     disk_size_gb: int,
@@ -51,7 +51,7 @@ def disk_from_image(
     boot_disk.boot = boot
     return boot_disk
 
-
+# Ref: https://cloud.google.com/python/docs/reference/compute/latest
 def wait_for_extended_operation(
     operation: ExtendedOperation, verbose_name: str = "operation", timeout: int = 300
 ) -> Any:
@@ -74,7 +74,7 @@ def wait_for_extended_operation(
 
     return result
 
-
+# Ref: https://cloud.google.com/python/docs/reference/compute/latest
 def create_instance(
     project_id: str,
     zone: str,
@@ -143,16 +143,9 @@ def create_instance(
     print(f"Instance {instance_name} created.")
     return instance_client.get(project=project_id, zone=zone, instance=instance_name)
 
-
+# Ref: https://cloud.google.com/python/docs/reference/compute/latest
 def delete_instance(project_id: str, zone: str, machine_name: str) -> None:
-    """
-    Send an instance deletion request to the Compute Engine API and wait for it to complete.
 
-    Args:
-        project_id: project ID or project number of the Cloud project you want to use.
-        zone: name of the zone you want to use. For example: “us-west3-b”
-        machine_name: name of the machine you want to delete.
-    """
     instance_client = compute_v1.InstancesClient()
 
     print(f"Deleting {machine_name} from {zone}...")
