@@ -17,8 +17,6 @@ PROJECTID=params["USER"]["PROJECTID"]
 USER =params["USER"]["USERNAME"]
 SSHFilePath = params["USER"]["SSHFilePath"]
 SERVERPORT =params["USER"]["SERVERPORT"]
-
-
 image_name=params["GCP"]["imageName"]
 source_image=params["GCP"]["sourceImage"]
 disk_type=f'zones/{ZONE}/diskTypes/pd-balanced'
@@ -27,7 +25,8 @@ disk_type=f'zones/{ZONE}/diskTypes/pd-balanced'
 boot_disk_server = disk_from_image(disk_type,10,True,source_image=source_image)
 boot_disk_client = disk_from_image(disk_type,10,True,source_image=source_image)
 
-machine_names = ["keyvalue4-server","keyvalue4-client"]
+machine_names = ["keyvalue5-server","keyvalue5-client"]
+
 commandsToSetupOnServer = [
     "sudo apt install -y git",
     "git clone https://github.com/GowthamChowta/simple-keyvaluestore.git",
@@ -35,7 +34,8 @@ commandsToSetupOnServer = [
     "sudo pip install google-cloud-core",
     "sudo pip install google-cloud-firestore",
     "sudo pip install google-cloud-compute" ,
-    "sudo pip install paramiko"
+    "sudo pip install paramiko",
+    "sudo pip install google-cloud-storage"
 ]
 commandsToSetupOnClient = [
     "sudo apt install -y git",
@@ -64,6 +64,7 @@ os.system(f"ssh-keygen -R {clientPublicIP}")
 print("Installing dependencies on Server")
 sleep(5)
 ssh = setupMachineByhostIP(serverPublicIP)
+## Copying the cred.json file to the server
 ftp_client=ssh.open_sftp()
 ftp_client.put(applicationCredentialsPath, f"/home/{USER}/cred.json")
 ftp_client.close()
@@ -92,4 +93,5 @@ commandsToClient = [
 ]
 
 runCommandsOnAMachineOverSSH(sshClient,commandsToClient)
-print("Installing dependencies")
+print("Client request successfull")
+

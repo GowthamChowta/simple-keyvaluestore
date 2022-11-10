@@ -8,7 +8,7 @@ import os
 
 from constants import INVALIDCOMMAND, NEWLINESEPERATOR, NOTEXISTS, STORED
 from gcpPythonClientHelper import read_ini
-from saveLoadDisk import GoogleFireStore, SaveLoadDisk
+from saveLoadDisk import GoogleBlobStorage, GoogleFireStore, SaveLoadDisk
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = int(sys.argv[1])
@@ -16,7 +16,7 @@ STORAGE = sys.argv[2]
 
 params = read_ini()
 USER =params["USER"]["USERNAME"]
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = f"/home/{USER}/cred.json"
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = f"/home/{USER}/cred.json"
 
 class ServerThread:
     """
@@ -84,6 +84,8 @@ class Server:
             self.storage = SaveLoadDisk()        
         elif storage == "firestore":
             self.storage = GoogleFireStore()
+        elif storage == "blobstorage":
+            self.storage = GoogleBlobStorage()
         print(f"Server is listening on port {PORT}")        
         
     def startServer(self):

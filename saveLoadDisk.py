@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 import json
 import os
-from google.cloud import firestore
+from google.cloud import firestore, storage
 
 from constants import NEWLINESEPERATOR, NOTEXISTS
+from gcpPythonClientHelper import read_ini
 
 # The `project` parameter is optional and represents which project the client
 # will act on behalf of. If not supplied, the client falls back to the default
@@ -13,10 +14,15 @@ if "simple-keyvaluestore"  not in os.getcwd():
     os.chdir("simple-keyvaluestore/")
 
 
+params = read_ini()
+
+bucketName = params["GCP"]["bucketName"]
+
+
 class CustomStorage(ABC):
     
     @abstractmethod
-    def load(self):
+    def get(self):
         pass
     @abstractmethod
     def save(self,data):
@@ -92,6 +98,35 @@ class GoogleFireStore(CustomStorage):
         else:
             return self.parseGetResponse(key,None)
     
+    
+class GoogleBlobStorage(CustomStorage):
+    
+    def __init__(self):
+        # Instantiates a client
+        self.storage_client = storage.Client()
+        self.bucket = self.storage_client.bucket(bucketName)
         
+    
+    def save(self, data):
+        """Write and read a blob from GCS using file-like IO"""
+        
+        blob = self.bucket.blob(data[0])
+
+        # Mode can be specified as wb/rb for bytes mode.
+        # See: https://docs.python.org/3/library/io.html
+        with blob.open("w") as f:
+            f.write(data[1])
+        print("Data saved to Blob storage successfully")
+    
+    def get(self,key):
+        try:
+            blob = self.bucket.blob(key)            
+            with blob.open("r") as f:
+                out = f.read()
+            return self.parseGetResponse(key,out)
+        except Exception as e:
+            return self.parseGetResponse(key,None)
+            
+    
         
         

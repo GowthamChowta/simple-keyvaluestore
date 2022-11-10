@@ -168,5 +168,17 @@ def runCommandsOnAMachineOverSSH(ssh,commands):
         except Exception as e:
             print("An error occurred while running the command",command, stderr)       
             
-            
+
+def createBucket(storage):
+    storage_client = storage.Client()
+
+    # The name for the new bucket
+    bucket_name = "chgowt-bucket"
+
+    # Creates the new bucket
+    bucket = storage_client.create_bucket(bucket_name)
+
+    print(f"Bucket {bucket.name} created.")            
+
+
 
