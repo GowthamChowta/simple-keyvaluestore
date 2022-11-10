@@ -26,6 +26,8 @@ PROJECTID=params["USER"]["PROJECTID"]
 USER =params["USER"]["USERNAME"]
 SSHFilePath = params["USER"]["SSHFilePath"]
 SERVERPORT =params["USER"]["SERVERPORT"]
+BUCKETNAMEFORBLOGBSTORAGE =params["GCP"]["BUCKETNAMEFORBLOGBSTORAGE"]
+
 
 
 
@@ -142,6 +144,25 @@ def create_instance(
     return instance_client.get(project=project_id, zone=zone, instance=instance_name)
 
 
+def delete_instance(project_id: str, zone: str, machine_name: str) -> None:
+    """
+    Send an instance deletion request to the Compute Engine API and wait for it to complete.
+
+    Args:
+        project_id: project ID or project number of the Cloud project you want to use.
+        zone: name of the zone you want to use. For example: “us-west3-b”
+        machine_name: name of the machine you want to delete.
+    """
+    instance_client = compute_v1.InstancesClient()
+
+    print(f"Deleting {machine_name} from {zone}...")
+    operation = instance_client.delete(
+        project=project_id, zone=zone, instance=machine_name
+    )
+    wait_for_extended_operation(operation, "instance deletion")
+    print(f"Instance {machine_name} deleted.")
+    return
+
 def getInstanceExternalInternalIpByName(name):
     client = compute_v1.InstancesClient()    
     instanceConfig = client.get(project=PROJECTID,zone=ZONE,instance=name)
@@ -173,12 +194,20 @@ def createBucket(storage):
     storage_client = storage.Client()
 
     # The name for the new bucket
-    bucket_name = "chgowt-bucket"
+    bucket_name = BUCKETNAMEFORBLOGBSTORAGE
 
     # Creates the new bucket
     bucket = storage_client.create_bucket(bucket_name)
 
     print(f"Bucket {bucket.name} created.")            
 
+def delete_bucket(storage,bucket_name):
+    """Deletes a bucket. The bucket must be empty."""
+    # bucket_name = "your-bucket-name"
+    storage_client = storage.Client()
 
+    bucket = storage_client.get_bucket(bucket_name)
+    bucket.delete()
+
+    print(f"Bucket {bucket.name} deleted")
 

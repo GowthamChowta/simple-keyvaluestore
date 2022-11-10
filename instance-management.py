@@ -5,8 +5,10 @@ import os
 import threading
 from google.api_core.extended_operation import ExtendedOperation
 
-from gcpPythonClientHelper import create_instance, disk_from_image, getInstanceExternalInternalIpByName, read_ini, runCommandsOnAMachineOverSSH, setupMachineByhostIP
+from gcpPythonClientHelper import create_instance, delete_bucket, delete_instance, disk_from_image, getInstanceExternalInternalIpByName, read_ini, runCommandsOnAMachineOverSSH, setupMachineByhostIP
 import sys
+from google.cloud import storage
+
 
 
 STORAGE = sys.argv[1]
@@ -23,6 +25,8 @@ SERVERPORT =params["USER"]["SERVERPORT"]
 image_name=params["GCP"]["imageName"]
 source_image=params["GCP"]["sourceImage"]
 disk_type=f'zones/{ZONE}/diskTypes/pd-balanced'
+bucketName = params["GCP"]["bucketName"]
+
 
 
 boot_disk_server = disk_from_image(disk_type,10,True,source_image=source_image)
@@ -109,6 +113,9 @@ installDependenciesOnServer(serverPublicIP)
 installDependenciesOnClient(clientPublicIP, serverInternalIP)
 print("Completed key-value store")
 
+# delete_instance(project_id=PROJECTID, zone=ZONE,machine_name=machine_names[0])
+# delete_instance(project_id=PROJECTID, zone=ZONE,machine_name=machine_names[1])
+# delete_bucket(storage, bucket_name=bucketName)
 
 
 

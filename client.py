@@ -58,8 +58,13 @@ class Client:
 port = int(sys.argv[1])
 serverInternalIp = sys.argv[2]
 
+import time
+start_time = time.time()
 c = Client(serverInternalIp,"tcp",port)
-c.set("20","120")
-print(c.get("30"))
-print(c.get("20"))
-print(c.get("200"))
+c.set("Gowtham","chowta")
+print(c.get("Gowtham"))
+c.set("516","ECC")
+print(c.get("517"))
+c.set("517","NA")
+print(c.get("517"))
+print("--- %s seconds ---" % (time.time() - start_time))

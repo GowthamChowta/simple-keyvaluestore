@@ -1,33 +1,21 @@
-Files:
-client.py -- Implemented tcp/memcached type client.
-start_server.sh -- Launches the server
-1-client-tcp.sh -- Connects to the server and makes GET-SET requests with tcp protocol.
-1-client-memcached.sh -- Connects to the server and makes GET-SET requests with memcached protocol.
-n-clients.sh -- Connects to the server and makes many GET-SET request in parallel to the server. 
+Pre-requisites:
 
-(All files expect an argument port number)
+* gcloud is installed. 
+* python3 installed.
+* 
 
+1. Need to setup the application credentials. Run the below command and login via google and download the credentials.
 
-Server: 
-To start a multi-threader server execute the below line:
-./start_server.sh <listen-port>
+gcloud auth application-default login
 
-To start a server on port 8082
+Copy the path of the file created. 
 
-./start_server.sh 8082
+2. Make the changes in the config.ini file
 
+config.ini
+* Update the project id.
+* Update application credentials file path. 
+* Update the storage options. (default, blobstorage, firestore)
 
-Client:
-To send a get request
-1. 
-
-2 (a) Execute the below line to send a single GET and SET request to the server: (Make sure we use the same port number where the server is launched)
-
-./tests/1-client-tcp.sh 8082
-
-2 (b) Execute the below line to send multiple GET and SET request to the server. 
-
-./tests/n-clients.sh 8082
-
-
-
+3. Run the key-value server with the storage option selected. 
+./start_everything.sh

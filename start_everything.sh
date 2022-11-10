@@ -3,12 +3,8 @@ PROJECTID=$(awk -F "=" '/PROJECTID/ {print $2}' config.ini)
 USERNAME=$(awk -F "=" '/USERNAME/ {print $2}' config.ini)
 STORAGE=$(awk -F "=" '/STORAGE/ {print $2}' config.ini)
 
-echo $PROJECTID
-echo $USERNAME
-echo $STORAGE
-
 gcloud config set project $PROJECTID
-echo 'Enabling api property'
+echo 'Enabling compute api property'
 gcloud services enable compute.googleapis.com
 echo 'Enabling os login property'
 gcloud services enable oslogin.googleapis.com
@@ -17,12 +13,21 @@ gcloud services enable datastore.googleapis.com
 echo 'Enabling firestore property'
 gcloud services enable firestore.googleapis.com
 
+echo "Installing required python libraries"
+pip install google-cloud-core
+pip install google-cloud-firestore
+pip install google-cloud-compute 
+pip install paramiko
+pip install google-cloud-storage
+
+echo 'Generating SSH key value pair'
 # Creating a ssh key and transfering the key to a project
-ssh-keygen -t rsa -f ~/.ssh/gcp-ass5 -C $USERNAME -b 2048
-gcloud compute os-login ssh-keys add --key-file=/Users/chowtagowtham/.ssh/gcp-ass5.pub --project $PROJECTID --ttl=30d
+ssh-keygen -t rsa -f ./gcp-ass5 -C $USERNAME -b 2048
+echo 'Transfer the ssh public keys to the project'
+gcloud compute os-login ssh-keys add --key-file=./gcp-ass5.pub --project $PROJECTID --ttl=30d
 # Setting up SSH agent
 eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/gcp-ass5
+ssh-add ./gcp-ass5
 
 
 ## Creating a default network
